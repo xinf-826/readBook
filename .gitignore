@@ -1,0 +1,26 @@
+# Xcode
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+build/
+*.ipa
+
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+Package.resolved
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 本项目临时文件
+*.png
+*.txt
+openspec/
+screenshot*

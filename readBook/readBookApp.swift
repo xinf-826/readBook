@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct readBookApp: App {
+    @State private var store = BookStore()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(store)
+                .onOpenURL { url in
+                    store.importBooks(from: [url])
+                }
         }
     }
 }
