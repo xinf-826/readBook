@@ -1,0 +1,28 @@
+readBook/Views/ReaderSettingsView.swift
+  s_bd35fdb17ce439::t_9cd2d653228b95 5
+CURSOR_PROMPT_ARCHIVE.md
+  s_bd35fdb17ce439::t_ece5eabecac77a 9-25
+  s_bd35fdb17ce439::t_21165c346cec32 26-42
+readBook/Models/BookSettings.swift
+  s_bd35fdb17ce439::t_588b66e19f2ace 134,144,166
+readBook/Views/ChapterListView.swift
+  s_bd35fdb17ce439::t_bdd24ed91ecb47 44-72
+readBook/Views/ReaderView.swift
+  s_bd35fdb17ce439::t_3a95b8d82c59ac 55,62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "56e9ee68be2ac08fe9ba67ca3a669c316d0bbd3d",
+  "prompts": {},
+  "sessions": {
+    "s_bd35fdb17ce439": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4bafd58a-af1b-4cb4-bcb8-5076e920e84b",
+        "model": "grok-4.5"
+      },
+      "human_author": "ext.cuixuecheng1 <ext.cuixuecheng1@jd.com>"
+    }
+  }
+}
