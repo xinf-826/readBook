@@ -2,7 +2,7 @@
 //  ReaderSettingsView.swift
 //  readBook
 //
-//  阅读设置面板：字号/行距/主题/字体/翻页动画/阅读模式/亮度。修改即时生效并持久化。
+//  阅读设置面板：字号/行距/主题/字体/翻页动画/阅读模式。修改即时生效并持久化。
 //
 
 import SwiftUI
@@ -61,14 +61,6 @@ struct ReaderSettingsView: View {
                         }
                     }
                     .pickerStyle(.segmented)
-                }
-
-                Section("亮度") {
-                    HStack {
-                        Image(systemName: "sun.min")
-                        Slider(value: $store.settings.brightness, in: 0.2...1.0)
-                        Image(systemName: "sun.max")
-                    }
                 }
 
                 Section {

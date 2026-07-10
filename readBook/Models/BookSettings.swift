@@ -123,8 +123,6 @@ struct ReaderSettings: Codable, Equatable {
     var font: ReaderFont
     var pageAnimation: PageAnimation
     var readingMode: ReadingMode
-    /// 应用内亮度（0.2–1.0，直接映射到系统屏幕亮度）。
-    var brightness: Double
 
     static let `default` = ReaderSettings(
         fontSize: 20,
@@ -133,8 +131,7 @@ struct ReaderSettings: Codable, Equatable {
         followSystem: false,
         font: .system,
         pageAnimation: .none,
-        readingMode: .paged,
-        brightness: 0.8
+        readingMode: .paged
     )
 
     init(
@@ -144,8 +141,7 @@ struct ReaderSettings: Codable, Equatable {
         followSystem: Bool,
         font: ReaderFont,
         pageAnimation: PageAnimation,
-        readingMode: ReadingMode,
-        brightness: Double
+        readingMode: ReadingMode
     ) {
         self.fontSize = fontSize.clamped(to: Self.minFontSize...Self.maxFontSize)
         self.lineSpacing = max(0, lineSpacing)
@@ -154,7 +150,6 @@ struct ReaderSettings: Codable, Equatable {
         self.font = font
         self.pageAnimation = pageAnimation
         self.readingMode = readingMode
-        self.brightness = brightness.clamped(to: 0.2...1.0)
     }
 
     init(from decoder: Decoder) throws {
@@ -168,8 +163,7 @@ struct ReaderSettings: Codable, Equatable {
         font = (try? c.decodeIfPresent(ReaderFont.self, forKey: .font)) ?? d.font
         pageAnimation = (try? c.decodeIfPresent(PageAnimation.self, forKey: .pageAnimation)) ?? d.pageAnimation
         readingMode = (try? c.decodeIfPresent(ReadingMode.self, forKey: .readingMode)) ?? d.readingMode
-        let rawBrightness = (try? c.decodeIfPresent(Double.self, forKey: .brightness)) ?? d.brightness
-        brightness = rawBrightness.clamped(to: 0.2...1.0)
+        // 旧版 brightness 字段忽略，亮度已改为跟随系统
     }
 }
 

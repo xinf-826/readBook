@@ -7,7 +7,6 @@
 
 import Foundation
 import Observation
-import UIKit
 import UniformTypeIdentifiers
 
 @Observable
@@ -25,11 +24,7 @@ final class BookStore {
     private let storage = BookStorage.shared
 
     init() {
-        let isFreshInstall = !storage.hasPersistedSettings
         settings = storage.loadSettings()
-        if isFreshInstall {
-            settings.brightness = Double(UIScreen.main.brightness).clamped(to: 0.2...1.0)
-        }
         reload()
     }
 

@@ -6,6 +6,40 @@
 
 <!-- 新归档条目追加在本分隔线下方，按完成时间倒序（最新在上） -->
 
+## 🛠 R2. 打开目录时自动定位到当前章节
+
+### 描述
+当前打开目录（ChapterListView）时，章节列表从顶部开始显示。如果用户在看第 50 章，需要手动滑动到第 50 章，体验不好。改为打开目录时自动滚动到当前章节位置并高亮。
+
+### 实现要点
+- `ChapterListView` 的章节列表使用 `ScrollViewReader` 包裹
+- 给每个章节行添加 `.id(chapter.index)` 标记
+- 在列表初次加载时，使用 `scrollTo(currentChapterIndex, anchor: .center)` 自动滚动到当前章节
+- 如果章节数量少（不到一屏），不需要滚动
+
+### 涉及文件
+- `Views/ChapterListView.swift` — 主要修改，加 ScrollViewReader + scrollTo
+
+- 完成时间: 2026-07-10
+- 完成摘要: `ChapterListView` 用 `ScrollViewReader` 包裹目录列表，打开时 `scrollTo` 当前章节并居中；涉及 `ChapterListView.swift`。
+
+## 🛠 R1. 亮度跟随系统亮度
+
+### 描述
+当前阅读器的亮度由 App 内设置的 `brightness` 值控制，通过 `UIScreen.main.brightness` 覆盖系统亮度。需求改为：
+
+- 移除 App 内独立的亮度调节功能
+- 阅读器不再控制 `UIScreen.main.brightness`
+- 亮度完全跟随系统设置，用户通过控制中心或物理按钮调节
+
+### 涉及文件
+- `Views/ReaderView.swift` — 移除 `savedBrightness`、`applyBrightness()`、`restoreBrightness()`、`onAppear`/`onDisappear`/`onChange` 中的亮度相关代码
+- `Views/ReaderSettingsView.swift` — 移除亮度调节的 Slider
+- `Models/BookSettings.swift` — 从 `ReaderSettings` 中移除 `brightness` 字段（或用默认值 1.0 兼容旧数据）
+
+- 完成时间: 2026-07-10
+- 完成摘要: 移除 App 内亮度调节与 `UIScreen.main.brightness` 控制；`ReaderSettings` 删除 `brightness` 字段（旧数据解码时忽略）；涉及 `ReaderView.swift`、`ReaderSettingsView.swift`、`BookSettings.swift`、`BookStore.swift`。
+
 ## 🆕 F10. 新增「听书」功能（TTS 朗读）
 
 ### 功能描述

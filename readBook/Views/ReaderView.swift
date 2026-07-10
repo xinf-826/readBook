@@ -18,8 +18,6 @@ struct ReaderView: View {
     @State private var showMenu = false
     @State private var showSettings = false
     @State private var showChapters = false
-    /// 进入阅读器前的系统屏幕亮度，退出时恢复。
-    @State private var savedBrightness: CGFloat = UIScreen.main.brightness
 
     // MARK: - 听书（已暂停，见 BACKLOG.md）
     // @State private var audioVM: AudioPlayerViewModel?
@@ -54,23 +52,14 @@ struct ReaderView: View {
         }
         .statusBarHidden(false)
         .preferredColorScheme(settings.followSystem ? nil : (theme.isDark ? .dark : .light))
-        .onAppear {
-            loadIfNeeded()
-            savedBrightness = UIScreen.main.brightness
-            applyBrightness()
-        }
-        .onDisappear { restoreBrightness() }
+        .onAppear { loadIfNeeded() }
         .onChange(of: settings) { _, _ in
             if settings.readingMode == .paged {
                 vm?.reflowForSettingsChange()
             }
-            applyBrightness()
         }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active {
-                applyBrightness()
-            } else {
-                restoreBrightness()
+            if phase != .active {
                 vm?.persist()
             }
         }
@@ -147,16 +136,6 @@ struct ReaderView: View {
             .clipped()
         }
         .ignoresSafeArea(edges: .bottom)
-    }
-
-    // MARK: - 亮度（直接控制系统屏幕亮度）
-
-    private func applyBrightness() {
-        UIScreen.main.brightness = settings.brightness
-    }
-
-    private func restoreBrightness() {
-        UIScreen.main.brightness = savedBrightness
     }
 
     private func slimTopBar(_ vm: ReaderViewModel) -> some View {

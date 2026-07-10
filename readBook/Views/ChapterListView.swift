@@ -41,26 +41,39 @@ struct ChapterListView: View {
     }
 
     private var chapterList: some View {
-        List(vm.chapters) { chapter in
-            Button {
-                vm.goToChapter(chapter.index)
-                onJump()
-                dismiss()
-            } label: {
-                HStack {
-                    Text(chapter.title)
-                        .lineLimit(1)
-                        .foregroundStyle(chapter.index == vm.currentChapterIndex ? Color.accentColor : .primary)
-                    Spacer()
-                    if chapter.index == vm.currentChapterIndex {
-                        Image(systemName: "book.fill")
-                            .font(.caption)
-                            .foregroundStyle(Color.accentColor)
+        ScrollViewReader { proxy in
+            List(vm.chapters) { chapter in
+                Button {
+                    vm.goToChapter(chapter.index)
+                    onJump()
+                    dismiss()
+                } label: {
+                    HStack {
+                        Text(chapter.title)
+                            .lineLimit(1)
+                            .foregroundStyle(chapter.index == vm.currentChapterIndex ? Color.accentColor : .primary)
+                        Spacer()
+                        if chapter.index == vm.currentChapterIndex {
+                            Image(systemName: "book.fill")
+                                .font(.caption)
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                }
+                .id(chapter.index)
+            }
+            .listStyle(.plain)
+            .onAppear {
+                let target = vm.currentChapterIndex
+                guard vm.chapters.contains(where: { $0.index == target }) else { return }
+                // 延迟一帧，确保 List 完成布局后再滚动
+                DispatchQueue.main.async {
+                    withAnimation {
+                        proxy.scrollTo(target, anchor: .center)
                     }
                 }
             }
         }
-        .listStyle(.plain)
     }
 
     @ViewBuilder
