@@ -94,13 +94,21 @@ enum FileParser {
 
     // MARK: - 章节识别
 
+    /// 单章 UTF-16 长度达到该值就拆开。验收要求拆分后 length < 50_000，硬切因此落在 49_999。
+    private static let maxChapterLength = 50_000
+
     private static let chapterPatterns: [String] = [
-        #"^\s*第\s*[零一二三四五六七八九十百千万0-9]+\s*[章卷回节篇](?:[ 　:：、.\-—].*)?$"#,
+        // 章/卷允许标题紧贴，如「第1章都会说了」。回/节/篇仍要求分隔符或独占一行，避免「第一节课」误判。
+        #"^\s*第\s*[零一二三四五六七八九十百千万0-9]+\s*[章卷](?:[ 　:：、.\-—]?.*)?$"#,
+        #"^\s*第\s*[零一二三四五六七八九十百千万0-9]+\s*[回节篇](?:[ 　:：、.\-—].*)?$"#,
         #"^\s*Chapter\s+\d+.*$"#,
-        #"^\s*\d{1,4}\s*[、.．]?\s*.{0,30}$"#
+        #"^\s*\d{1,4}\s*[、.．]?\s*.{0,30}$"#,
+        // 番外篇必须写在番外前面。标题后若还有字，必须先有空格、标点或编号，避免「尾声渐渐消失」误判。
+        #"^\s*(?:番外篇|番外|序章|楔子|引子|后记|尾声|终章)(?:\s*[0-9零一二三四五六七八九十百千万]{1,8})?(?:[ 　.、:：\-—].*)?$"#,
     ]
 
-    /// 按行扫描识别章节边界。零命中时全文作为单一章节；相邻过近的标题去重。
+    /// 按行扫描识别章节边界。零命中时全文作为「正文」；相邻过近的标题去重。
+    /// 单章达到 `maxChapterLength` 时只扫描该章区间，按空行或硬切拆开。
     static func detectChapters(in text: String) -> [Chapter] {
         let ns = text as NSString
         let fullLength = ns.length
@@ -127,21 +135,99 @@ enum FileParser {
             deduped.append(b)
         }
 
-        guard !deduped.isEmpty else {
-            return [Chapter(index: 0, title: "正文", startOffset: 0, length: fullLength)]
+        let rawChapters: [Chapter]
+        if deduped.isEmpty {
+            rawChapters = [Chapter(index: 0, title: "正文", startOffset: 0, length: fullLength)]
+        } else {
+            // 首个章节之前若有正文（如序言），并入第一章之前作为"前言"章节。
+            var chapters: [Chapter] = []
+            var startIndex = 0
+            if deduped[0].offset > 0 {
+                chapters.append(Chapter(index: 0, title: "前言", startOffset: 0, length: deduped[0].offset))
+                startIndex = 1
+            }
+            for (i, b) in deduped.enumerated() {
+                let end = (i + 1 < deduped.count) ? deduped[i + 1].offset : fullLength
+                chapters.append(Chapter(index: startIndex + i, title: b.title, startOffset: b.offset, length: end - b.offset))
+            }
+            rawChapters = chapters
+        }
+        return limitChapterLength(rawChapters, in: ns)
+    }
+
+    /// 把超长章节拆成若干段。只采用窗口后半段的空行；没有合适空行则按完整字符硬切。
+    private static func limitChapterLength(_ chapters: [Chapter], in text: NSString) -> [Chapter] {
+        var expanded: [Chapter] = []
+        expanded.reserveCapacity(chapters.count)
+        for chapter in chapters {
+            let slices = splitRange(start: chapter.startOffset, length: chapter.length, in: text)
+            if slices.count <= 1 {
+                expanded.append(chapter)
+                continue
+            }
+            for (part, slice) in slices.enumerated() {
+                let title = "\(chapter.title) (\(part + 1)/\(slices.count))"
+                expanded.append(Chapter(index: 0, title: title, startOffset: slice.start, length: slice.length))
+            }
+        }
+        return expanded.enumerated().map { index, chapter in
+            Chapter(index: index, title: chapter.title, startOffset: chapter.startOffset, length: chapter.length)
+        }
+    }
+
+    private struct TextSlice {
+        var start: Int
+        var length: Int
+    }
+
+    /// 只扫描 [start, start+length)。返回的切片首尾相接，长度之和等于原 length。
+    private static func splitRange(start: Int, length: Int, in text: NSString) -> [TextSlice] {
+        guard length >= maxChapterLength,
+              start >= 0,
+              start <= text.length,
+              start + length <= text.length else {
+            return [TextSlice(start: start, length: length)]
         }
 
-        // 首个章节之前若有正文（如序言），并入第一章之前作为"前言"章节。
-        var chapters: [Chapter] = []
-        var startIndex = 0
-        if deduped[0].offset > 0 {
-            chapters.append(Chapter(index: 0, title: "前言", startOffset: 0, length: deduped[0].offset))
-            startIndex = 1
+        let pieceCap = maxChapterLength - 1
+        var slices: [TextSlice] = []
+        var offset = start
+        let end = start + length
+        while offset < end {
+            let remaining = end - offset
+            if remaining < maxChapterLength {
+                slices.append(TextSlice(start: offset, length: remaining))
+                break
+            }
+            let pieceLength = cutLength(in: text, start: offset, window: pieceCap)
+            slices.append(TextSlice(start: offset, length: pieceLength))
+            offset += pieceLength
         }
-        for (i, b) in deduped.enumerated() {
-            let end = (i + 1 < deduped.count) ? deduped[i + 1].offset : fullLength
-            chapters.append(Chapter(index: startIndex + i, title: b.title, startOffset: b.offset, length: end - b.offset))
+        return slices
+    }
+
+    /// 在窗口后半段取最靠近上限的 `\n\n`（切在空行之后）。太靠前的空行（常见于标题后）不用，改为硬切。
+    private static func cutLength(in text: NSString, start: Int, window: Int) -> Int {
+        guard window > 0 else { return 1 }
+        let range = NSRange(location: start, length: window)
+        let found = text.range(of: "\n\n", options: .backwards, range: range)
+        if found.location != NSNotFound {
+            let afterBlank = found.location + found.length - start
+            if afterBlank >= window / 2, afterBlank <= window {
+                return afterBlank
+            }
         }
-        return chapters
+        return alignCutToCharacter(in: text, start: start, proposed: window)
+    }
+
+    /// 硬切点若落在代理对或组合字符中间，退回到该字符起点，避免切出 U+FFFD。
+    private static func alignCutToCharacter(in text: NSString, start: Int, proposed: Int) -> Int {
+        let boundary = start + proposed
+        guard proposed > 0, boundary < text.length else { return max(proposed, 1) }
+        let sequence = text.rangeOfComposedCharacterSequence(at: boundary)
+        if sequence.location > start, sequence.location < boundary {
+            return sequence.location - start
+        }
+        return proposed
     }
 }
