@@ -1,0 +1,23 @@
+CURSOR_PROMPT_ARCHIVE.md
+  s_ecc70c7cb97b4e::t_52a4a15924e811 9-126
+readBook/Services/FileParser.swift
+  s_ecc70c7cb97b4e::t_52a4a15924e811 97-99,101-103,105-107,110-111,138-189,192-204,206-229,231-231
+readBookTests/FileParserTests.swift
+  s_ecc70c7cb97b4e::t_52a4a15924e811 1-266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "jd-1.7.6",
+  "base_commit_sha": "6d2e268e08efbd8dd09321208a1784a300783f0a",
+  "prompts": {},
+  "sessions": {
+    "s_ecc70c7cb97b4e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ecc70c7c-b97b-4e72-a4d1-b776ff082811",
+        "model": "grok-4.7"
+      },
+      "human_author": "ext.cuixuecheng1 <ext.cuixuecheng1@jd.com>"
+    }
+  }
+}
