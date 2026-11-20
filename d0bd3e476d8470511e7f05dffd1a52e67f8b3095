@@ -1,0 +1,41 @@
+readBook/Services/FileParser.swift
+  s_7a6a8a45c58d77::t_d1160f5f913ead 226,229
+  s_27c4aec8fd7282::t_70102d18b41f33 101-103,106-107
+  s_27c4aec8fd7282::t_a199714bc398e6 168-169
+  s_27c4aec8fd7282::t_2d7d0c7d2cef48 209,216,220-225,227-228,231
+  s_27c4aec8fd7282::t_7cbc146eb02ca3 97-99,105,110-111,138-157,159-167,170-189,192-204,206-208,210-215,217-219
+  s_27c4aec8fd7282::t_27e609262429e2 158
+CURSOR_PROMPT_ARCHIVE.md
+  s_27c4aec8fd7282::t_6a5387e9f6ebc8 9-126
+readBookTests/FileParserTests.swift
+  s_27c4aec8fd7282::t_96359e7d42240d 68
+  s_27c4aec8fd7282::t_dc23f2e1df9e61 1-58,60-67,69-164,200-244
+  s_27c4aec8fd7282::t_e2ff86a5eb90bd 245-257,261-266
+  s_27c4aec8fd7282::t_826d3d6ec2b4e4 258-260
+  s_27c4aec8fd7282::t_acb9e24d892ea2 165-199
+  s_27c4aec8fd7282::t_73ff6287c02c33 59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "6d2e268e08efbd8dd09321208a1784a300783f0a",
+  "prompts": {},
+  "sessions": {
+    "s_27c4aec8fd7282": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ecc70c7c-b97b-4e72-a4d1-b776ff082811",
+        "model": "grok-4.7"
+      },
+      "human_author": "ext.cuixuecheng1 <ext.cuixuecheng1@jd.com>"
+    },
+    "s_7a6a8a45c58d77": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "1b610cde-46c8-44f0-9614-f2f124ffa6c3",
+        "model": "claude-opus-5-5-medium"
+      },
+      "human_author": "ext.cuixuecheng1 <ext.cuixuecheng1@jd.com>"
+    }
+  }
+}
